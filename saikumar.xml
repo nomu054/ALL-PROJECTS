@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="63ec69ae-fbd9-414c-8b67-ab292deeecde" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="067676b8-704c-46d1-a20e-d04de02ce70c" />
+	<flow name="saikumarFlow" doc:id="574f8757-cf51-4313-bf6e-00943944e214" >
+		<http:listener doc:name="Listener" doc:id="d903d9c9-2074-45e9-8833-a6cac9e6fc25" path="store" config-ref="HTTP_Listener_config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="0a8aa019-a648-4df5-bfd6-c97aad409370" message="#[payload]"/>
+		<os:store doc:name="Store" doc:id="57ff6738-d79e-47c4-9cb3-a6038ce73397" key="store" objectStore="Object_store">
+		</os:store>
+		<logger level="INFO" doc:name="Logger" doc:id="36d92387-27ef-4bab-b10d-5fd732aa36b9" message="#[payload]"/>
+	</flow>
+	<flow name="saikumarFlow1" doc:id="3086172d-0d79-47f3-9c99-b73c57674f8e" >
+		<http:listener doc:name="Listener" doc:id="95537182-35a8-4b08-b43f-c01f89acb12d" config-ref="HTTP_Listener_config" path="rall"/>
+		<os:retrieve-all doc:name="Retrieve all" doc:id="bc08c64a-1758-4ec9-950d-b116698af044" objectStore="Object_store"/>
+	</flow>
+	<flow name="saikumarFlow2" doc:id="f92a779f-938e-4f98-9769-aabf1b40f33f" >
+		<http:listener doc:name="Listener" doc:id="0413933c-f81f-491b-91a7-89ae2b53443c" config-ref="HTTP_Listener_config" path="rallkeys"/>
+		<os:retrieve-all-keys doc:name="Retrieve all keys" doc:id="c2bd086e-cde5-4904-82d2-8bad77057502" objectStore="Object_store"/>
+	</flow>
+	<flow name="saikumarFlow3" doc:id="6ba0b664-d41d-41d9-a901-7d240f753f38" >
+		<http:listener doc:name="Listener" doc:id="99eead21-d344-4f70-88f5-7314e84088f9" config-ref="HTTP_Listener_config" path="contains"/>
+		<os:contains doc:name="Contains" doc:id="c6777186-033e-4f19-8023-7e1371692cce" key="#[attributes.queryParams.name]" objectStore="Object_store"/>
+		<ee:transform doc:name="Transform Message" doc:id="56489ba1-2faf-49d0-9a32-06f7542b4967" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="saikumarFlow4" doc:id="b0ed826f-8d4b-462b-865c-f92d6e8c3dfd" >
+		<http:listener doc:name="Listener" doc:id="ef9720ba-3c9a-46e0-807b-fe09a25f7b98" config-ref="HTTP_Listener_config" path="remove"/>
+		<os:remove doc:name="Remove" doc:id="2fa992ce-cbb2-4af3-92c1-5f0d0e62acc3" key="#[attributes.queryParams.name]" objectStore="Object_store"/>
+	</flow>
+	<flow name="saikumarFlow5" doc:id="81c9774d-f023-4331-8890-4a6dea4f5de5" >
+		<http:listener doc:name="Listener" doc:id="e7be5bfd-91f6-4378-be5f-f3ac1b096909" config-ref="HTTP_Listener_config" path="clear"/>
+		<os:clear doc:name="Clear" doc:id="6ecd2a1f-6421-434e-908f-34611ae34b2a" objectStore="Object_store"/>
+	</flow>
+</mule>
